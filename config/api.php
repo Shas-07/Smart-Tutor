@@ -5,7 +5,7 @@
 // IMPORTANT: Replace 'YOUR_OPENROUTER_API_KEY' with your actual API key
 // Sign up at https://openrouter.ai/ to get a free API key
 
-define('OPENROUTER_API_KEY', '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');
+define('OPENROUTER_API_KEY', 'add your api key');
 
 // OpenRouter API endpoint
 define('OPENROUTER_API_URL', 'https://openrouter.ai/api/v1/chat/completions');
@@ -21,4 +21,5 @@ define('OPENROUTER_MODEL', 'meta-llama/llama-3.2-3b-instruct:free');
 define('AI_SYSTEM_PROMPT', 'You are a helpful AI study assistant for Smart Tutor, an educational platform. Help students with their studies, answer questions about courses, materials, formulas, homework, and provide educational guidance. Be friendly, encouraging, and educational.');
 
 ?>
+
 

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Tutor - Login (Demo)</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/login.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-wrapper">
+            <div class="login-card">
+                <div class="logo-section">
+                    <h1 class="logo">Smart Tutor</h1>
+                    <p class="tagline">Empowering Education Through Technology</p>
+                    <p style="color: #ff6b6b; font-size: 0.85rem; margin-top: 10px;">📌 Demo Mode - No Backend Required</p>
+                </div>
+                
+                <div id="errorMessage" class="error-message" style="display: none;"></div>
+                
+                <form id="loginForm" class="login-form">
+                    <div class="form-group">
+                        <label for="role">I am a:</label>
+                        <select name="role" id="role" required class="form-control">
+                            <option value="">Select Role</option>
+                            <option value="student">Student</option>
+                            <option value="parent">Parent</option>
+                            <option value="lecturer">Lecturer</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required class="form-control" placeholder="Enter your username">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required class="form-control" placeholder="Enter your password">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </form>
+                
+                <div class="auth-links">
+                    <p style="margin-top: 20px; padding: 15px; background: #f0f7ff; border-radius: 8px; font-size: 0.9rem;">
+                        <strong>Demo Credentials:</strong><br>
+                        Student: student1 / password<br>
+                        Parent: parent1 / password<br>
+                        Lecturer: lecturer1 / password
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="assets/js/demoData.js"></script>
+    <script>
+        // Check if already logged in
+        if (demoAuth.isAuthenticated()) {
+            const user = demoAuth.getCurrentUser();
+            redirectToDashboard(user.role);
+        }
+        
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            const errorDiv = document.getElementById('errorMessage');
+            
+            // Clear previous errors
+            errorDiv.style.display = 'none';
+            errorDiv.textContent = '';
+            
+            if (!role) {
+                showError('Please select a role');
+                return;
+            }
+            
+            if (demoAuth.login(username, password, role)) {
+                redirectToDashboard(role);
+            } else {
+                showError('Invalid credentials! Use demo credentials: student1/parent1/lecturer1 with password "password"');
+            }
+        });
+        
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+        
+        function redirectToDashboard(role) {
+            switch(role) {
+                case 'student':
+                    window.location.href = 'student/dashboard.html';
+                    break;
+                case 'parent':
+                    window.location.href = 'parent/dashboard.html';
+                    break;
+                case 'lecturer':
+                    window.location.href = 'lecturer/dashboard.html';
+                    break;
+            }
+        }
+    </script>
+</body>
+</html>
+

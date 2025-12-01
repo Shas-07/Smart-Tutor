@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Report Card - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Lecturer Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="upload_lecture.html">Upload Lecture</a></li>
+                    <li><a href="upload_homework.html">Upload Homework</a></li>
+                    <li><a href="upload_video.html">Upload Video</a></li>
+                    <li><a href="upload_report_card.html" class="active">Upload Report Card</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Upload Report Card / Test Results</h1>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div class="card">
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="student_id">Student</label>
+                        <select name="student_id" id="student_id" required class="form-control">
+                            <option value="">Select Student</option>
+                            <option value="1">John Student (student1)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="test_name">Test/Exam Name</label>
+                        <input type="text" name="test_name" id="test_name" required class="form-control" placeholder="e.g., Mid-Term Exam, Unit Test 1">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="test_date">Test Date</label>
+                        <input type="date" name="test_date" id="test_date" required class="form-control" value="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" name="subject" id="subject" required class="form-control" placeholder="e.g., Mathematics, Physics">
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="score">Score Obtained</label>
+                            <input type="number" name="score" id="score" step="0.01" min="0" required class="form-control" placeholder="e.g., 85">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="max_score">Maximum Score</label>
+                            <input type="number" name="max_score" id="max_score" step="0.01" min="0" required class="form-control" placeholder="e.g., 100">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="grade">Grade</label>
+                            <input type="text" name="grade" id="grade" class="form-control" placeholder="e.g., A, B+, 95%">
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="remarks">Remarks</label>
+                        <textarea name="remarks" id="remarks" rows="3" class="form-control" placeholder="Teacher's comments or remarks"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="file">Report Card File (Optional - Demo Mode)</label>
+                        <input type="text" name="file" id="file" class="form-control" placeholder="Enter filename or URL">
+                        <small>Demo mode: Enter filename or URL. Supported: PDF, JPG, PNG, DOC, DOCX</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Upload Report Card</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script>
+        if (!checkAuth('lecturer')) {}
+        
+        const user = demoAuth.getCurrentUser();
+        loadNewsTicker();
+        
+        // Set today's date as default
+        document.getElementById('test_date').value = new Date().toISOString().split('T')[0];
+        
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentId = parseInt(document.getElementById('student_id').value);
+            const testName = document.getElementById('test_name').value;
+            const testDate = document.getElementById('test_date').value;
+            const subject = document.getElementById('subject').value;
+            const score = parseFloat(document.getElementById('score').value);
+            const maxScore = parseFloat(document.getElementById('max_score').value);
+            const grade = document.getElementById('grade').value;
+            const remarks = document.getElementById('remarks').value;
+            const filePath = document.getElementById('file').value || null;
+            
+            const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+            
+            const newReport = {
+                id: demoData.reportCards.length + 1,
+                student_id: studentId,
+                lecturer_id: user.id,
+                lecturer_name: user.full_name,
+                test_name: testName,
+                test_date: testDate,
+                subject: subject,
+                score: score,
+                max_score: maxScore,
+                percentage: percentage,
+                grade: grade,
+                remarks: remarks,
+                file_path: filePath
+            };
+            
+            demoData.reportCards.unshift(newReport);
+            showAlert('Report card uploaded successfully!', 'success');
+            this.reset();
+            document.getElementById('test_date').value = new Date().toISOString().split('T')[0];
+        });
+        
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 3000);
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+</body>
+</html>
+

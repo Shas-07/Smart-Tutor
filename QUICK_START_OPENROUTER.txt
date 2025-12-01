@@ -1,0 +1,32 @@
+===========================================
+QUICK START - OpenRouter AI Integration
+===========================================
+
+STEP 1: Get Free API Key
+-------------------------
+1. Go to: https://openrouter.ai/
+2. Sign up for free account
+3. Go to: https://openrouter.ai/keys
+4. Click "Create Key"
+5. Copy your API key
+
+STEP 2: Configure API Key
+--------------------------
+1. Open: config/api.php
+2. Find: define('OPENROUTER_API_KEY', 'YOUR_OPENROUTER_API_KEY');
+3. Replace 'YOUR_OPENROUTER_API_KEY' with your actual key
+4. Save file
+
+STEP 3: Test
+------------
+1. Login as student
+2. Open AI chat (bottom-right)
+3. Type a message
+4. Get real AI response!
+
+That's it! The AI chat now uses real AI instead of static responses.
+
+For detailed instructions, see: OPENROUTER_SETUP.md
+
+===========================================
+

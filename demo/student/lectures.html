@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lectures - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">My Materials</a></li>
+                    <li><a href="lectures.html" class="active">Lectures</a></li>
+                    <li><a href="homework.html">Homework</a></li>
+                    <li><a href="videos.html">Videos</a></li>
+                    <li><a href="calculator.html">Calculator</a></li>
+                    <li><a href="formulas.html">Formulas</a></li>
+                    <li><a href="periodic_table.html">Periodic Table</a></li>
+                    <li><a href="work_log.html">Work Log</a></li>
+                    <li><a href="report_cards.html">Report Cards</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Lectures</h1>
+            </div>
+            
+            <div class="card">
+                <h2>Available Lectures</h2>
+                <div class="materials-grid" id="lecturesGrid"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+    <script>
+        if (!checkAuth('student')) {}
+        
+        const user = demoAuth.getCurrentUser();
+        const lectures = demoDB.getMaterialsByType('lecture');
+        const studentId = user.id;
+        
+        loadNewsTicker();
+        
+        const grid = document.getElementById('lecturesGrid');
+        if (lectures.length === 0) {
+            grid.innerHTML = '<p>No lectures available yet.</p>';
+        } else {
+            grid.innerHTML = lectures.map(lecture => {
+                const status = demoDB.getProgress(studentId, lecture.id);
+                const fileInfo = getFileInfo(lecture.file_path);
+                return `
+                    <div class="material-card">
+                        <div class="material-type-badge type-lecture">Lecture</div>
+                        <h3>${lecture.title}</h3>
+                        <p>${lecture.description}</p>
+                        <div class="material-meta">
+                            <span class="lecturer-name">By: ${lecture.lecturer_name}</span>
+                            <span class="upload-date">${formatDate(lecture.uploaded_at)}</span>
+                        </div>
+                        <div class="progress-section">
+                            <label>Progress:</label>
+                            <select class="progress-select" data-material-id="${lecture.id}">
+                                <option value="not_started" ${status === 'not_started' ? 'selected' : ''}>Not Started</option>
+                                <option value="in_progress" ${status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+                                <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
+                            </select>
+                        </div>
+                        <a href="${lecture.file_path.startsWith('http') ? lecture.file_path : '#'}" 
+                           class="btn btn-primary btn-block mt-2" 
+                           ${lecture.file_path.startsWith('http') ? 'target="_blank"' : 'onclick="alert(\'Demo mode: File download simulated\'); return false;"'}>
+                           ${fileInfo.icon} ${fileInfo.text}
+                        </a>
+                    </div>
+                `;
+            }).join('');
+            
+            document.querySelectorAll('.progress-select').forEach(select => {
+                select.addEventListener('change', function() {
+                    demoDB.updateProgress(studentId, parseInt(this.getAttribute('data-material-id')), this.value);
+                });
+            });
+        }
+    </script>
+</body>
+</html>
+

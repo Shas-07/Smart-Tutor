@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Parent Dashboard - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+    <link rel="stylesheet" href="../assets/css/parent.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Parent Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="progress.html">Student Progress</a></li>
+                    <li><a href="report_cards.html">Report Cards</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+            <div class="language-selector">
+                <label>Language:</label>
+                <select id="languageSelect" class="form-control">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="fr">Français (French)</option>
+                </select>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1 id="welcomeMessage">Welcome, Parent</h1>
+                <div class="user-info">
+                    <span>Parent</span>
+                </div>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="statTotalMaterials">Total Materials</h3>
+                    <p class="stat-value" id="statTotalValue">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statCompleted">Completed</h3>
+                    <p class="stat-value" id="statCompletedValue">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statInProgress">In Progress</h3>
+                    <p class="stat-value" id="statInProgressValue">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="statCompletionRate">Completion Rate</h3>
+                    <p class="stat-value" id="statCompletionRateValue">0%</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2 id="progressChartTitle">Progress Overview</h2>
+                <canvas id="progressChart"></canvas>
+            </div>
+            
+            <div class="card">
+                <h2 id="recentActivityTitle">Recent Activity</h2>
+                <div id="recentActivity">
+                    <!-- Activity items will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+    <script src="../assets/js/parent.js"></script>
+    <script>
+        // Check authentication
+        if (!checkAuth('parent')) {
+            // Redirect handled in checkAuth
+        }
+        
+        const user = demoAuth.getCurrentUser();
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${user.full_name}`;
+        
+        // Load news ticker
+        loadNewsTicker();
+        
+        // Calculate statistics
+        const studentId = 1; // Demo student ID
+        const materials = demoDB.getMaterials();
+        const progress = demoDB.getStudentProgress(studentId);
+        
+        const completed = progress.filter(p => p.status === 'completed').length;
+        const inProgress = progress.filter(p => p.status === 'in_progress').length;
+        const notStarted = materials.length - completed - inProgress;
+        const completionRate = materials.length > 0 ? Math.round((completed / materials.length) * 100) : 0;
+        
+        // Update stats
+        document.getElementById('statTotalValue').textContent = materials.length;
+        document.getElementById('statCompletedValue').textContent = completed;
+        document.getElementById('statInProgressValue').textContent = inProgress;
+        document.getElementById('statCompletionRateValue').textContent = completionRate + '%';
+        
+        // Create progress chart
+        const ctx = document.getElementById('progressChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Completed', 'In Progress', 'Not Started'],
+                datasets: [{
+                    data: [completed, inProgress, notStarted],
+                    backgroundColor: ['#4caf50', '#ff9800', '#e0e0e0']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+        
+        // Load recent activity
+        const recentActivity = progress.slice(0, 5).map(p => {
+            const material = demoDB.getMaterialById(p.material_id);
+            return {
+                material: material ? material.title : 'Unknown',
+                status: p.status,
+                type: material ? material.type : 'unknown'
+            };
+        });
+        
+        const activityHtml = recentActivity.length > 0 
+            ? recentActivity.map(activity => `
+                <div class="activity-item">
+                    <span class="activity-type type-${activity.type}">${activity.type}</span>
+                    <span class="activity-text">${activity.material}</span>
+                    <span class="activity-status status-${activity.status}">${activity.status.replace('_', ' ')}</span>
+                </div>
+            `).join('')
+            : '<p>No recent activity.</p>';
+        
+        document.getElementById('recentActivity').innerHTML = activityHtml;
+    </script>
+</body>
+</html>
+

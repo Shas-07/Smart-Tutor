@@ -1,0 +1,66 @@
+===========================================
+SMART TUTOR - QUICK SETUP GUIDE
+===========================================
+
+STEP 1: START XAMPP SERVICES
+-----------------------------
+1. Open XAMPP Control Panel
+2. Start Apache service
+3. Start MySQL service
+
+STEP 2: CREATE DATABASE
+-----------------------
+1. Open browser and go to: http://localhost/phpmyadmin
+2. Click on "Import" tab
+3. Click "Choose File" and select: database.sql
+4. Click "Go" to import
+5. Database "smart_tutor" will be created with sample data
+
+STEP 3: ACCESS APPLICATION
+--------------------------
+Open browser and navigate to:
+http://localhost/smart tutor/
+
+OR
+
+http://localhost/smart%20tutor/
+
+STEP 4: LOGIN CREDENTIALS
+--------------------------
+Lecturer:
+  Username: lecturer1
+  Password: password
+
+Student:
+  Username: student1
+  Password: password
+
+Parent:
+  Username: parent1
+  Password: password
+
+STEP 5: VERIFY UPLOADS FOLDER
+------------------------------
+Make sure these folders exist and have write permissions:
+- uploads/lecture/
+- uploads/homework/
+- uploads/video/
+
+TROUBLESHOOTING
+---------------
+If you see database connection error:
+- Check if MySQL is running in XAMPP
+- Verify database credentials in config/database.php
+
+If file upload doesn't work:
+- Check uploads folder permissions
+- Ensure folders exist
+
+If page shows blank:
+- Check PHP error logs in XAMPP
+- Enable error display in PHP (for development only)
+
+===========================================
+For detailed documentation, see README.md
+===========================================
+

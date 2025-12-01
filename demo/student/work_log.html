@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Work Log - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">My Materials</a></li>
+                    <li><a href="lectures.html">Lectures</a></li>
+                    <li><a href="homework.html">Homework</a></li>
+                    <li><a href="videos.html">Videos</a></li>
+                    <li><a href="calculator.html">Calculator</a></li>
+                    <li><a href="formulas.html">Formulas</a></li>
+                    <li><a href="periodic_table.html">Periodic Table</a></li>
+                    <li><a href="work_log.html" class="active">Work Log</a></li>
+                    <li><a href="report_cards.html">Report Cards</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Study Work Log</h1>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid" id="statsGrid"></div>
+            
+            <!-- Add Work Log Form -->
+            <div class="card">
+                <h2>Add Study Entry</h2>
+                <form id="workLogForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="date">Date</label>
+                        <input type="date" name="date" id="date" required class="form-control" value="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" name="subject" id="subject" required class="form-control" placeholder="e.g., Mathematics, Physics">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="topic">Topic</label>
+                        <input type="text" name="topic" id="topic" class="form-control" placeholder="e.g., Algebra, Newton's Laws">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="hours_studied">Hours Studied</label>
+                        <input type="number" name="hours_studied" id="hours_studied" step="0.5" min="0" required class="form-control" placeholder="e.g., 2.5">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="notes">Notes</label>
+                        <textarea name="notes" id="notes" rows="4" class="form-control" placeholder="What did you study? Any important points?"></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Add Entry</button>
+                </form>
+            </div>
+            
+            <!-- Work Logs List -->
+            <div class="card">
+                <h2>Study History</h2>
+                <div id="workLogsList"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script>
+        if (!checkAuth('student')) {}
+        
+        const user = demoAuth.getCurrentUser();
+        const studentId = user.id;
+        
+        loadNewsTicker();
+        
+        // Set today's date as default
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        
+        function loadWorkLogs() {
+            const logs = demoDB.getWorkLogs(studentId);
+            
+            // Calculate statistics
+            let totalHours = 0;
+            const subjects = {};
+            logs.forEach(log => {
+                totalHours += parseFloat(log.hours);
+                subjects[log.subject] = (subjects[log.subject] || 0) + parseFloat(log.hours);
+            });
+            
+            // Update stats
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card stat-total">
+                    <h3>Total Hours</h3>
+                    <div class="stat-number">${totalHours.toFixed(1)}</div>
+                    <div class="stat-subtitle">Hours Studied</div>
+                </div>
+                <div class="stat-card stat-progress">
+                    <h3>Total Entries</h3>
+                    <div class="stat-number">${logs.length}</div>
+                    <div class="stat-subtitle">Log Entries</div>
+                </div>
+                <div class="stat-card stat-completed">
+                    <h3>Subjects</h3>
+                    <div class="stat-number">${Object.keys(subjects).length}</div>
+                    <div class="stat-subtitle">Different Subjects</div>
+                </div>
+            `;
+            
+            // Display logs
+            const list = document.getElementById('workLogsList');
+            if (logs.length === 0) {
+                list.innerHTML = '<p>No work logs yet. Start tracking your study time!</p>';
+            } else {
+                list.innerHTML = logs.map(log => `
+                    <div class="work-log-item">
+                        <div class="log-header">
+                            <h4>${log.subject}</h4>
+                            <span class="log-date">${formatDate(log.date)}</span>
+                        </div>
+                        ${log.topic ? `<p class="log-topic"><strong>Topic:</strong> ${log.topic}</p>` : ''}
+                        <div class="log-meta">
+                            <span class="log-hours">⏱️ ${log.hours} hours</span>
+                        </div>
+                        ${log.notes ? `<p class="log-notes">${log.notes.replace(/\n/g, '<br>')}</p>` : ''}
+                    </div>
+                `).join('');
+            }
+        }
+        
+        loadWorkLogs();
+        
+        // Handle form submission
+        document.getElementById('workLogForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const logData = {
+                date: document.getElementById('date').value,
+                subject: document.getElementById('subject').value,
+                topic: document.getElementById('topic').value,
+                hours: parseFloat(document.getElementById('hours_studied').value),
+                notes: document.getElementById('notes').value
+            };
+            
+            demoDB.addWorkLog(studentId, logData);
+            
+            showAlert('Work log added successfully!', 'success');
+            loadWorkLogs();
+            this.reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        });
+        
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+</body>
+</html>
+

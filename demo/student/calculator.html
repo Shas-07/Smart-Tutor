@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+    <link rel="stylesheet" href="../assets/css/calculator.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">My Materials</a></li>
+                    <li><a href="lectures.html">Lectures</a></li>
+                    <li><a href="homework.html">Homework</a></li>
+                    <li><a href="videos.html">Videos</a></li>
+                    <li><a href="calculator.html" class="active">Calculator</a></li>
+                    <li><a href="formulas.html">Formulas</a></li>
+                    <li><a href="periodic_table.html">Periodic Table</a></li>
+                    <li><a href="work_log.html">Work Log</a></li>
+                    <li><a href="report_cards.html">Report Cards</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Calculator</h1>
+            </div>
+            
+            <div class="card calculator-container">
+                <div class="calculator">
+                    <div class="calculator-display">
+                        <input type="text" id="display" readonly value="0">
+                    </div>
+                    <div class="calculator-buttons">
+                        <button class="btn-calc btn-clear" onclick="clearDisplay()">C</button>
+                        <button class="btn-calc btn-clear" onclick="clearEntry()">CE</button>
+                        <button class="btn-calc btn-operator" onclick="appendOperator('/')">/</button>
+                        <button class="btn-calc btn-operator" onclick="appendOperator('*')">×</button>
+                        
+                        <button class="btn-calc btn-number" onclick="appendNumber('7')">7</button>
+                        <button class="btn-calc btn-number" onclick="appendNumber('8')">8</button>
+                        <button class="btn-calc btn-number" onclick="appendNumber('9')">9</button>
+                        <button class="btn-calc btn-operator" onclick="appendOperator('-')">-</button>
+                        
+                        <button class="btn-calc btn-number" onclick="appendNumber('4')">4</button>
+                        <button class="btn-calc btn-number" onclick="appendNumber('5')">5</button>
+                        <button class="btn-calc btn-number" onclick="appendNumber('6')">6</button>
+                        <button class="btn-calc btn-operator" onclick="appendOperator('+')">+</button>
+                        
+                        <button class="btn-calc btn-number" onclick="appendNumber('1')">1</button>
+                        <button class="btn-calc btn-number" onclick="appendNumber('2')">2</button>
+                        <button class="btn-calc btn-number" onclick="appendNumber('3')">3</button>
+                        <button class="btn-calc btn-equals" onclick="calculate()" rowspan="2">=</button>
+                        
+                        <button class="btn-calc btn-number btn-zero" onclick="appendNumber('0')">0</button>
+                        <button class="btn-calc btn-number" onclick="appendDecimal()">.</button>
+                        <button class="btn-calc btn-operator" onclick="appendOperator('%')">%</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script>
+        // Check authentication
+        if (!demoAuth.checkRole('student')) {
+            window.location.href = '../index.html';
+        }
+        
+        // Load news ticker
+        const container = document.getElementById('newsTickerContainer');
+        fetch('../includes/news_ticker.html')
+            .then(response => response.text())
+            .then(html => container.innerHTML = html);
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+    <script src="../assets/js/calculator.js"></script>
+</body>
+</html>

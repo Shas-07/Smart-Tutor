@@ -1,0 +1,142 @@
+/* Formulas Page Styles */
+.formulas-container {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.formula-section {
+    animation: fadeIn 0.6s ease-out;
+}
+
+.formula-section h2 {
+    color: var(--primary-color);
+    margin-bottom: 24px;
+    font-size: 1.75rem;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+.formula-section h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 80px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    border-radius: 2px;
+}
+
+.formula-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+}
+
+.formula-card {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border: 2px solid #e5e7eb;
+    border-radius: 12px;
+    padding: 24px;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.formula-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
+    transform: scaleX(0);
+    transition: var(--transition);
+}
+
+.formula-card:hover::before {
+    transform: scaleX(1);
+}
+
+.formula-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--shadow-lg);
+    border-color: var(--primary-color);
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+}
+
+.formula-card h3 {
+    color: var(--dark-color);
+    margin-bottom: 16px;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.formula-display {
+    background: var(--white);
+    padding: 16px;
+    border-radius: 8px;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 12px;
+    border: 2px solid #e5e7eb;
+    font-family: 'Courier New', monospace;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: var(--transition);
+}
+
+.formula-card:hover .formula-display {
+    border-color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(37, 99, 235, 0.1);
+}
+
+.formula-card p {
+    color: var(--gray-color);
+    font-size: 0.9rem;
+    margin: 0;
+    line-height: 1.5;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .formulas-container {
+        gap: 24px;
+    }
+    
+    .formula-section h2 {
+        font-size: 1.5rem;
+    }
+    
+    .formula-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .formula-card {
+        padding: 20px;
+    }
+    
+    .formula-display {
+        font-size: 1.1rem;
+        padding: 12px;
+    }
+}
+
+@media (max-width: 480px) {
+    .formula-card {
+        padding: 16px;
+    }
+    
+    .formula-section h2 {
+        font-size: 1.25rem;
+    }
+    
+    .formula-display {
+        font-size: 1rem;
+    }
+}
+

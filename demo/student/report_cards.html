@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report Cards - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Student Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">My Materials</a></li>
+                    <li><a href="lectures.html">Lectures</a></li>
+                    <li><a href="homework.html">Homework</a></li>
+                    <li><a href="videos.html">Videos</a></li>
+                    <li><a href="calculator.html">Calculator</a></li>
+                    <li><a href="formulas.html">Formulas</a></li>
+                    <li><a href="periodic_table.html">Periodic Table</a></li>
+                    <li><a href="work_log.html">Work Log</a></li>
+                    <li><a href="report_cards.html" class="active">Report Cards</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>My Report Cards & Test Results</h1>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid" id="statsGrid"></div>
+            
+            <!-- Report Cards List -->
+            <div class="card">
+                <h2>Test Results & Report Cards</h2>
+                <div id="reportCardsList"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script>
+        if (!checkAuth('student')) {}
+        
+        const user = demoAuth.getCurrentUser();
+        const studentId = user.id;
+        
+        loadNewsTicker();
+        
+        function loadReportCards() {
+            const reports = demoDB.getReportCards(studentId);
+            
+            // Calculate statistics
+            const totalTests = reports.length;
+            let avgScore = 0;
+            if (totalTests > 0) {
+                const totalPercentage = reports.reduce((sum, r) => {
+                    return sum + (r.max_score > 0 ? (r.score / r.max_score) * 100 : 0);
+                }, 0);
+                avgScore = Math.round(totalPercentage / totalTests);
+            }
+            
+            // Update stats
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card stat-total">
+                    <h3>Total Tests</h3>
+                    <div class="stat-number">${totalTests}</div>
+                    <div class="stat-subtitle">Tests Taken</div>
+                </div>
+                <div class="stat-card stat-completed">
+                    <h3>Average Score</h3>
+                    <div class="stat-number">${avgScore}%</div>
+                    <div class="stat-subtitle">Overall Performance</div>
+                </div>
+            `;
+            
+            // Display report cards
+            const list = document.getElementById('reportCardsList');
+            if (reports.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <p>No report cards available yet.</p>
+                        <p class="empty-hint">Your test results will appear here once lecturers upload them.</p>
+                    </div>
+                `;
+            } else {
+                list.innerHTML = reports.map(report => {
+                    const percentage = report.max_score > 0 ? Math.round((report.score / report.max_score) * 100) : 0;
+                    const scoreClass = percentage >= 90 ? 'excellent' : (percentage >= 75 ? 'good' : (percentage >= 60 ? 'average' : 'needs-improvement'));
+                    return `
+                        <div class="report-card-item">
+                            <div class="report-header">
+                                <div>
+                                    <h3>${report.test_name}</h3>
+                                    <p class="report-subject">📚 ${report.subject}</p>
+                                    <p class="report-date">📅 ${formatDate(report.test_date)}</p>
+                                </div>
+                                <div class="report-score score-${scoreClass}">
+                                    <div class="score-percentage">${percentage}%</div>
+                                    <div class="score-fraction">${report.score} / ${report.max_score}</div>
+                                </div>
+                            </div>
+                            ${report.grade ? `<div class="report-grade"><strong>Grade:</strong> ${report.grade}</div>` : ''}
+                            ${report.remarks ? `<div class="report-remarks"><strong>Remarks:</strong> ${report.remarks.replace(/\n/g, '<br>')}</div>` : ''}
+                            <div class="report-meta">
+                                <span>📝 By: ${report.lecturer_name}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+        
+        loadReportCards();
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+</body>
+</html>
+

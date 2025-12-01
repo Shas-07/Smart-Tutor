@@ -1,0 +1,54 @@
+<!-- News Ticker Component - Demo Version -->
+<div class="news-ticker-container">
+    <div class="news-ticker-wrapper">
+        <div class="ticker-label">📢 New Updates</div>
+        <div class="ticker-content" id="tickerContent">
+            <!-- Ticker items will be populated by JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    // Load ticker data
+    function loadTicker() {
+        const ads = demoDB.getAds();
+        const news = demoDB.getNews();
+        const tickerContent = document.getElementById('tickerContent');
+        
+        if (!tickerContent) return;
+        
+        let html = '';
+        
+        // Add ads
+        ads.forEach(ad => {
+            html += `
+                <div class="ticker-item">
+                    <a href="${ad.link_url || '#'}">${ad.title}</a>
+                </div>
+            `;
+        });
+        
+        // Add news
+        news.forEach(item => {
+            html += `
+                <div class="ticker-item">
+                    <span class="ticker-badge">${item.exam_type}</span>
+                    <a href="#">${item.title}</a>
+                </div>
+            `;
+        });
+        
+        // Duplicate for seamless loop
+        html += html;
+        
+        tickerContent.innerHTML = html;
+    }
+    
+    // Load ticker when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadTicker);
+    } else {
+        loadTicker();
+    }
+</script>
+

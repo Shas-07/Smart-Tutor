@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Homework - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Lecturer Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="upload_lecture.html">Upload Lecture</a></li>
+                    <li><a href="upload_homework.html" class="active">Upload Homework</a></li>
+                    <li><a href="upload_video.html">Upload Video</a></li>
+                    <li><a href="upload_report_card.html">Upload Report Card</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Upload Homework</h1>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div class="card">
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="title">Homework Title</label>
+                        <input type="text" name="title" id="title" required class="form-control" placeholder="Enter homework title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" rows="4" class="form-control" placeholder="Enter homework description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="file">Homework File (Demo: Enter URL or filename)</label>
+                        <input type="text" name="file" id="file" required class="form-control" placeholder="Enter file URL or filename">
+                        <small style="color: #666;">Demo mode: Enter a URL or filename. Supported: PDF, DOC, DOCX, TXT, XLS, XLSX, ZIP, RAR</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Upload Homework</button>
+                </form>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script>
+        if (!checkAuth('lecturer')) {}
+        
+        const user = demoAuth.getCurrentUser();
+        loadNewsTicker();
+        
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const filePath = document.getElementById('file').value;
+            
+            const newMaterial = {
+                id: demoData.materials.length + 1,
+                lecturer_id: user.id,
+                lecturer_name: user.full_name,
+                title: title,
+                description: description,
+                type: 'homework',
+                file_path: filePath,
+                uploaded_at: new Date().toISOString().split('T')[0]
+            };
+            
+            demoData.materials.unshift(newMaterial);
+            showAlert('Homework uploaded successfully!', 'success');
+            this.reset();
+        });
+        
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => { container.innerHTML = ''; }, 3000);
+        }
+    </script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+    <link rel="stylesheet" href="../assets/css/parent.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Parent Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="progress.html" class="active">Student Progress</a></li>
+                    <li><a href="report_cards.html">Report Cards</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+            <div class="language-selector">
+                <label>Language:</label>
+                <select id="languageSelect" class="form-control">
+                    <option value="en">English</option>
+                    <option value="hi">हिंदी (Hindi)</option>
+                    <option value="es">Español (Spanish)</option>
+                    <option value="fr">Français (French)</option>
+                </select>
+            </div>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1>Detailed Progress</h1>
+            </div>
+            
+            <!-- Student Information -->
+            <div class="card student-info-card">
+                <h2>📚 Student Information</h2>
+                <div class="student-details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Full Name:</span>
+                        <span class="detail-value">John Student</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Student ID:</span>
+                        <span class="detail-value">STU001</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Email:</span>
+                        <span class="detail-value">student1@example.com</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="stats-grid" id="statsGrid"></div>
+            
+            <!-- Detailed Progress -->
+            <div class="card">
+                <h2>📊 Detailed Progress Report</h2>
+                <div id="progressList"></div>
+            </div>
+            
+            <!-- All Available Materials -->
+            <div class="card">
+                <h2>📚 All Available Materials</h2>
+                <div id="materialsOverview"></div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+    <script src="../assets/js/parent.js"></script>
+    <script>
+        if (!checkAuth('parent')) {}
+        
+        loadNewsTicker();
+        
+        const studentId = 1; // Demo student ID
+        const materials = demoDB.getMaterials();
+        const progress = demoDB.getStudentProgress(studentId);
+        
+        const completed = progress.filter(p => p.status === 'completed').length;
+        const inProgress = progress.filter(p => p.status === 'in_progress').length;
+        const notStarted = materials.length - completed - inProgress;
+        const completionRate = materials.length > 0 ? Math.round((completed / materials.length) * 100) : 0;
+        
+        // Update stats
+        document.getElementById('statsGrid').innerHTML = `
+            <div class="stat-card stat-completed">
+                <h3>Completed</h3>
+                <div class="stat-number">${completed}</div>
+                <div class="stat-subtitle">${materials.length > 0 ? Math.round((completed / materials.length) * 100) : 0}%</div>
+            </div>
+            <div class="stat-card stat-progress">
+                <h3>In Progress</h3>
+                <div class="stat-number">${inProgress}</div>
+                <div class="stat-subtitle">Active Learning</div>
+            </div>
+            <div class="stat-card stat-pending">
+                <h3>Not Started</h3>
+                <div class="stat-number">${notStarted}</div>
+                <div class="stat-subtitle">Pending</div>
+            </div>
+            <div class="stat-card stat-total">
+                <h3>Total Materials</h3>
+                <div class="stat-number">${materials.length}</div>
+                <div class="stat-subtitle">Available</div>
+            </div>
+            <div class="stat-card stat-rate">
+                <h3>Completion Rate</h3>
+                <div class="stat-number">${completionRate}%</div>
+                <div class="stat-subtitle">Overall Progress</div>
+            </div>
+        `;
+        
+        // Display progress
+        const progressList = document.getElementById('progressList');
+        if (progress.length === 0) {
+            progressList.innerHTML = `
+                <div class="empty-state">
+                    <p>No progress data available yet.</p>
+                    <p class="empty-hint">Student progress will appear here once they start working on materials.</p>
+                </div>
+            `;
+        } else {
+            progressList.innerHTML = progress.map(p => {
+                const material = demoDB.getMaterialById(p.material_id);
+                if (!material) return '';
+                return `
+                    <div class="progress-item">
+                        <div class="progress-item-main">
+                            <div class="progress-header">
+                                <h4>${material.title}</h4>
+                                <span class="material-type-badge type-${material.type}">${material.type.charAt(0).toUpperCase() + material.type.slice(1)}</span>
+                            </div>
+                            ${material.description ? `<p class="progress-description">${material.description}</p>` : ''}
+                            <div class="progress-meta">
+                                <span class="meta-item">📝 Lecturer: ${material.lecturer_name}</span>
+                                <span class="meta-item">📅 Uploaded: ${formatDate(material.uploaded_at)}</span>
+                            </div>
+                        </div>
+                        <div class="progress-status">
+                            <span class="progress-badge status-${p.status}">${p.status.replace('_', ' ')}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // Materials overview
+        const materialsByType = { lecture: 0, homework: 0, video: 0 };
+        materials.forEach(m => {
+            materialsByType[m.type] = (materialsByType[m.type] || 0) + 1;
+        });
+        
+        document.getElementById('materialsOverview').innerHTML = `
+            <div class="materials-summary">
+                <div class="summary-item">
+                    <span class="summary-icon">📄</span>
+                    <span class="summary-label">Lectures:</span>
+                    <span class="summary-value">${materialsByType.lecture}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-icon">📝</span>
+                    <span class="summary-label">Homework:</span>
+                    <span class="summary-value">${materialsByType.homework}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-icon">🎥</span>
+                    <span class="summary-label">Videos:</span>
+                    <span class="summary-value">${materialsByType.video}</span>
+                </div>
+            </div>
+        `;
+    </script>
+</body>
+</html>
+

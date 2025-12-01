@@ -1,0 +1,200 @@
+/* Parent Dashboard Specific Styles */
+.student-info-card {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: var(--white);
+    margin-bottom: 24px;
+}
+
+.student-info-card h2 {
+    color: var(--white);
+    margin-bottom: 20px;
+}
+
+.student-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.detail-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-value {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.stat-subtitle {
+    font-size: 0.85rem;
+    color: var(--gray-color);
+    margin-top: 8px;
+    font-weight: 500;
+}
+
+.stat-rate {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: var(--white);
+}
+
+.stat-rate h3,
+.stat-rate .stat-number,
+.stat-rate .stat-subtitle {
+    color: var(--white);
+}
+
+.stat-rate .stat-subtitle {
+    opacity: 0.9;
+}
+
+.progress-item-main {
+    flex: 1;
+}
+
+.progress-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+    gap: 12px;
+}
+
+.progress-header h4 {
+    margin: 0;
+    flex: 1;
+}
+
+.progress-description {
+    color: var(--gray-color);
+    font-size: 0.9rem;
+    margin: 8px 0;
+    line-height: 1.5;
+}
+
+.progress-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.85rem;
+    color: var(--gray-color);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.progress-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 8px;
+    min-width: 150px;
+}
+
+.completion-date {
+    font-size: 0.8rem;
+    color: var(--secondary-color);
+    margin: 0;
+    font-weight: 500;
+}
+
+.score {
+    font-size: 0.9rem;
+    color: var(--primary-color);
+    margin: 0;
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--gray-color);
+}
+
+.empty-hint {
+    font-size: 0.9rem;
+    margin-top: 8px;
+    opacity: 0.8;
+}
+
+.view-more {
+    text-align: center;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.materials-overview {
+    margin-top: 16px;
+}
+
+.materials-summary {
+    display: flex;
+    justify-content: space-around;
+    gap: 20px;
+    padding: 20px;
+    background: #f9fafb;
+    border-radius: 8px;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.summary-icon {
+    font-size: 2rem;
+}
+
+.summary-label {
+    font-size: 0.9rem;
+    color: var(--gray-color);
+    font-weight: 500;
+}
+
+.summary-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .student-details-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .progress-item {
+        flex-direction: column;
+    }
+    
+    .progress-status {
+        align-items: flex-start;
+        min-width: auto;
+        margin-top: 12px;
+    }
+    
+    .materials-summary {
+        flex-direction: column;
+        gap: 16px;
+    }
+}
+

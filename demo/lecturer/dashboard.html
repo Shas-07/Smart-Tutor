@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lecturer Dashboard - Smart Tutor (Demo)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="../assets/css/dashboard.css">
+    <link rel="stylesheet" href="../assets/css/ticker.css">
+</head>
+<body>
+    <div id="newsTickerContainer"></div>
+    <div class="dashboard">
+        <aside class="sidebar" style="position: fixed !important; top: 0 !important; left: 0 !important; display: block !important; visibility: visible !important; z-index: 1000 !important;">
+            <div class="sidebar-header">
+                <h2>Smart Tutor</h2>
+                <p>Lecturer Portal</p>
+            </div>
+            <nav>
+                <ul class="sidebar-nav">
+                    <li><a href="dashboard.html" class="active">Dashboard</a></li>
+                    <li><a href="upload_lecture.html">Upload Lecture</a></li>
+                    <li><a href="upload_homework.html">Upload Homework</a></li>
+                    <li><a href="upload_video.html">Upload Video</a></li>
+                    <li><a href="upload_report_card.html">Upload Report Card</a></li>
+                    <li><a href="../index.html">Home</a></li>
+                    <li><a href="#" onclick="demoAuth.logout(); window.location.href='../index.html';">Logout</a></li>
+                </ul>
+            </nav>
+        </aside>
+        
+        <main class="main-content">
+            <div class="header">
+                <h1 id="welcomeMessage">Welcome, Lecturer</h1>
+                <div class="user-info">
+                    <span>Lecturer</span>
+                </div>
+            </div>
+            
+            <div id="alertContainer"></div>
+            
+            <div class="card">
+                <h2>Upload New Material</h2>
+                <form id="uploadForm" class="upload-form">
+                    <div class="form-group">
+                        <label for="type">Material Type</label>
+                        <select name="type" id="type" required class="form-control">
+                            <option value="">Select Type</option>
+                            <option value="lecture">Lecture</option>
+                            <option value="homework">Homework</option>
+                            <option value="video">Video</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" id="title" required class="form-control" placeholder="Enter material title">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" rows="4" class="form-control" placeholder="Enter description"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="file">File (Demo: Enter URL or filename)</label>
+                        <input type="text" name="file" id="file" required class="form-control" placeholder="Enter file URL or filename">
+                        <small style="color: #666;">Demo mode: Enter a URL (e.g., https://example.com/file.pdf) or filename</small>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Upload Material</button>
+                </form>
+            </div>
+            
+            <div class="card">
+                <h2>Uploaded Materials</h2>
+                <div class="materials-grid" id="materialsGrid">
+                    <!-- Materials will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <script src="../assets/js/demoData.js"></script>
+    <script src="../assets/js/demoHelpers.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script src="../assets/js/mobile-menu.js"></script>
+    <script>
+        // Check authentication
+        if (!checkAuth('lecturer')) {
+            // Redirect handled in checkAuth
+        }
+        
+        const user = demoAuth.getCurrentUser();
+        document.getElementById('welcomeMessage').textContent = `Welcome, ${user.full_name}`;
+        
+        // Load news ticker
+        loadNewsTicker();
+        
+        // Load materials
+        function loadMaterials() {
+            const materials = demoDB.getMaterials().filter(m => m.lecturer_id === user.id);
+            const grid = document.getElementById('materialsGrid');
+            
+            if (materials.length === 0) {
+                grid.innerHTML = '<p>No materials uploaded yet.</p>';
+                return;
+            }
+            
+            grid.innerHTML = materials.map(material => {
+                const fileInfo = getFileInfo(material.file_path);
+                return `
+                    <div class="material-card">
+                        <div class="material-type-badge type-${material.type}">
+                            ${material.type.charAt(0).toUpperCase() + material.type.slice(1)}
+                        </div>
+                        <h3>${material.title}</h3>
+                        <p>${material.description}</p>
+                        <div class="material-meta">
+                            <span>Uploaded: ${formatDate(material.uploaded_at)}</span>
+                            ${material.file_path ? `
+                                <a href="${material.file_path.startsWith('http') ? material.file_path : '#'}" 
+                                   class="btn btn-secondary btn-sm" 
+                                   ${material.file_path.startsWith('http') ? 'target="_blank"' : 'onclick="alert(\'Demo mode: File download simulated\'); return false;"'}>
+                                   Download
+                                </a>
+                            ` : ''}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        loadMaterials();
+        
+        // Handle form submission
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const type = document.getElementById('type').value;
+            const title = document.getElementById('title').value;
+            const description = document.getElementById('description').value;
+            const filePath = document.getElementById('file').value;
+            
+            // Add to demo data
+            const newMaterial = {
+                id: demoData.materials.length + 1,
+                lecturer_id: user.id,
+                lecturer_name: user.full_name,
+                title: title,
+                description: description,
+                type: type,
+                file_path: filePath,
+                uploaded_at: new Date().toISOString().split('T')[0]
+            };
+            
+            demoData.materials.unshift(newMaterial);
+            
+            // Show success message
+            showAlert('Material uploaded successfully!', 'success');
+            
+            // Reload materials
+            loadMaterials();
+            
+            // Reset form
+            this.reset();
+        });
+        
+        function showAlert(message, type) {
+            const container = document.getElementById('alertContainer');
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            container.innerHTML = `<div class="alert ${alertClass}">${message}</div>`;
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
+
